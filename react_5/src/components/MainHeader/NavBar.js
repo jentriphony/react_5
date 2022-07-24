@@ -1,20 +1,23 @@
 import classes from './NavBar.module.css'
 
+import { useContext } from 'react'
+import LoginContext from './../../context/login'
 
 
-const NavBar = dataProps => {
+
+const NavBar = () => {
 
 
 
-	const loginStatus = dataProps.loginStatus
+  const loginContext = useContext(LoginContext)
+  const loginStatus = loginContext.loginStatus
 
 
-	return (
+  return (
+
+
 
 <nav className={ classes['nav-bar'] }>
-
-
-
  <ul>
   { loginStatus && (
   <li>
@@ -34,7 +37,7 @@ const NavBar = dataProps => {
 
   { loginStatus && (
   <li>
-   <button onClick={ dataProps.onLogout }>
+   <button onClick={ loginContext.logoutHandler }>
     logout
    </button>
   </li>
@@ -45,7 +48,7 @@ const NavBar = dataProps => {
 
 </nav>
 
-	)
+  )
 
 
 

@@ -6,7 +6,7 @@ const Button = dataProps => {
 
 
 
-	return (
+  return (
 
 <button
  type={ dataProps.type || 'button' }
@@ -26,7 +26,7 @@ const Button = dataProps => {
 
 </button>
 
-	)
+  )
 
 
 

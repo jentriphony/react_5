@@ -8,7 +8,7 @@ const Home = dataProps => {
 
 
 
-	return (
+  return (
 
 <Card className={ classes.home }>
 
@@ -20,7 +20,7 @@ const Home = dataProps => {
 
 </Card>
 
-	)
+  )
 
 
 

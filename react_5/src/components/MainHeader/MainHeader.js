@@ -4,7 +4,7 @@ import NavBar from './NavBar'
 
 
 
-const MainHeader = dataProps => {
+const MainHeader = () => {
 
 
 
@@ -16,7 +16,7 @@ const MainHeader = dataProps => {
 
  <h1>header</h1>
 
- <NavBar loginStatus={ dataProps.loginStatus } onLogout={ dataProps.onLogout } />
+ <NavBar />
 
 
 

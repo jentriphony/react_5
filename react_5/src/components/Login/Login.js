@@ -1,115 +1,191 @@
 import classes from './Login.module.css'
 
-import { useState, useEffect } from 'react'
+import {
+  useState,
+  useEffect,
+  useReducer,
+  useRef
+} from 'react'
 import Card from './../UI/Card/Card'
+import Input from './../UI/Input/Input'
 import Button from './../UI/Button/Button'
 
 
+/*
+  emailReducer
+*/
+const emailReducer = (previousState, action) => {
 
+  if(action.type === 'USER_ON_INPUT_EMAIL') {
+    return {
+      value: action.value,
+      statusVisual: previousState.statusVisual
+    }
+  }
+
+  if(action.type === 'USER_ON_BLUR_EMAIL') {
+    const value = previousState.value
+    return {
+      value: value,
+      statusVisual: /.@./.test(value)
+    }
+  }
+
+}
+// end emailReducer
+
+/*
+  passwordReducer
+*/
+const passwordReducer = (previousState, action) => {
+
+  if(action.type === 'USER_ON_INPUT_PASSWORD') {
+    return {
+      value: action.value,
+      statusVisual: previousState.statusVisual
+    }
+  }
+
+  if(action.type === 'USER_ON_BLUR_PASSWORD') {
+    const value = previousState.value
+    return {
+      value: value,
+      statusVisual: value.trim().length > 6
+    }
+  }
+
+}
+// end passwordReducer
+
+/*
+  default
+*/
 const Login = dataProps => {
 
 
 
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
-	const [emailStatus, setEmailStatus] = useState()
-	const [passwordStatus, setPasswordStatus] = useState()
- 	const [formStatus, setFormStatus] = useState(false)
+  const [email, dispatchEmail] = useReducer(emailReducer, {
+    value: '',
+    statusVisual: null
+  })
+  const [password, dispatchPassword] = useReducer(passwordReducer, {
+    value: '',
+    statusVisual: null
+  })
+  const emailRef = useRef()
+  const passwordRef = useRef()
+  const [formStatus, setFormStatus] = useState(false)
+  const { value: emailValue } = email
+  const { value: passwordValue } = password
 
 
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setFormStatus(/.@./.test(email) && password.trim().length > 6)
-		}, 1024)
-		return () => clearTimeout(timer)
-	}, [email, password])
+  useEffect(() => {
+
+    if(/.@./.test(emailValue) && passwordValue.trim().length > 6) {
+      setFormStatus(true)
+    } else {
+      if(formStatus === true) {
+	setFormStatus(false)
+      }
+    }
+
+  }, [emailValue, passwordValue, formStatus])
 
 
 
-	const emailHandler = event => {
+  const emailHandler = event => {
 
-		setEmail(event.target.value)
+    dispatchEmail({
+      type: 'USER_ON_INPUT_EMAIL',
+      value: event.target.value
+    })
 
-	}
+  }
 
-	const passwordHandler = event => {
+  const passwordHandler = event => {
 
-		setPassword(event.target.value)
+    dispatchPassword({
+      type: 'USER_ON_INPUT_PASSWORD',
+      value: event.target.value
+    })
 
-	}
+  }
 
-	const validateEmail = () => {
+  const validateEmail = () => {
 
-		setEmailStatus(/.@./.test(email))
+    dispatchEmail({
+      type: 'USER_ON_BLUR_EMAIL',
+    })
 
-	}
+  }
 
-	const validatePassword = () => {
+  const validatePassword = () => {
 
-		setPasswordStatus(password.trim().length > 6)
+    dispatchPassword({
+      type: 'USER_ON_BLUR_PASSWORD',
+    })
 
-	}
+  }
 
-	const onSubmit = event => {
+  const onSubmit = event => {
 
-		event.preventDefault()
+    event.preventDefault()
 
-		dataProps.onLogin(email, password)
+    if(formStatus === true) {
+      dataProps.onLogin(email.value, password.value)
+    } else {
+      if(email.status === false) {
+	emailRef.current.focus()
+	return
+      }
+      passwordRef.current.focus()
+    }
 
-	}
+  }
 
 
-	return (
+  return (
 
 <Card className={ classes.login }>
 
 
 
  <form onSubmit={ onSubmit }>
-  <div
+  <Input
+   labelFor='email'
+   labelInnerText='email'
+   type='email'
+   id='email'
+   value={ email.value }
+   onInput={ emailHandler }
+   onBlur={ validateEmail }
    className={ `
     ${ classes.control }
-    ${ emailStatus === false ? classes.invalid : '' }
+    ${ email.statusVisual === false ? classes.invalid : '' }
    ` }
-  >
-   <label htmlFor='email'>
-    email
-   </label>
+   ref={ emailRef }
+  />
 
-   <input
-    type='email'
-    id='email'
-    value={ email }
-    onInput={ emailHandler }
-    onBlur={ validateEmail }
-   />
-  </div>
-
-  <div
+  <Input
+   labelFor='password'
+   labelInnerText='password'
+   type='password'
+   id='password'
+   value={ password.value }
+   onInput={ passwordHandler }
+   onBlur={ validatePassword }
    className={ `
     ${ classes.control }
-    ${ passwordStatus === false ? classes.invalid : '' }
+    ${ password.statusVisual === false ? classes.invalid : '' }
    ` }
-  >
-   <label htmlFor='password'>
-    password
-   </label>
-
-   <input
-    type='password'
-    id='password'
-    value={ password }
-    onInput={ passwordHandler }
-    onBlur={ validatePassword }
-   />
-  </div>
+   ref={ passwordRef }
+  />
 
   <div className={ classes.actions }>
    <Button
     type='submit'
     className={ classes.btn }
-    disabled={ !formStatus }
    >
     login
    </Button>
